@@ -119,7 +119,8 @@ def wikipedia(keys: set | None = None, limit: int = 80) -> pd.DataFrame:
             r = requests.get(WIKI.format(title), timeout=25, headers=UA)
             if r.status_code != 200:
                 continue
-            tables = pd.read_html(io.StringIO(r.text))
+            html = re.sub(r'((?:col|row)span)\s*=\s*["\']?(\d+)[^\s>]*', r'\1="\2"', r.text)
+            tables = pd.read_html(io.StringIO(html))
         except Exception as e:  # noqa: BLE001
             print(f"[polls] wikipedia {title}: {e}", file=sys.stderr)
             continue
