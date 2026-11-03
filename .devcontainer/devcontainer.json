@@ -1,0 +1,12 @@
+{
+  "name": "Election Forest",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "bash scripts/codespace_setup.sh --install-only || true",
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": { "label": "Election Forest site", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "vscode": { "extensions": ["ms-python.python"] }
+  }
+}

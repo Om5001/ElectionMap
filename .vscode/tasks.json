@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "Live server (refresh every 90s, port 8000)", "type": "shell", "command": "python scripts/live_server.py --every 90", "isBackground": true, "problemMatcher": [] },
+    { "label": "Run forecast once (live data)", "type": "shell", "command": "python -m forecast.pipeline", "problemMatcher": [] },
+    { "label": "Demo: simulated election night", "type": "shell", "command": "python -m forecast.pipeline --demo --simulate-night 50 && python -m http.server -d site 8000", "isBackground": true, "problemMatcher": [] },
+    { "label": "Backtest the model", "type": "shell", "command": "python -m forecast.model.train", "problemMatcher": [] },
+    { "label": "Fetch district lean (all 435 House seats)", "type": "shell", "command": "python scripts/fetch_district_lean.py", "problemMatcher": [] },
+    { "label": "Run tests", "type": "shell", "command": "pytest -q", "group": "test", "problemMatcher": [] }
+  ]
+}

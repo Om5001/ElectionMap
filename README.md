@@ -1,5 +1,8 @@
 # Election Forest
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Om5001/ElectionMap?quickstart=1)
+<!-- After pushing, replace Om5001/ElectionMap above with your GitHub username and repo name. -->
+
 A live forecast of the 2026 **Senate**, **House** and **Governor** races. The core is a random forest whose factor weights are bootstrapped from each factor's correlation with results. The forecast is then blended with prediction markets and with vote counts as they come in.
 
 The site has three panels:
@@ -102,6 +105,28 @@ Every feed is optional and fails safely. The header's **Data feeds** list shows 
 - Without the district-lean file, House districts that have no polls use state lean.
 
 ---
+
+## Open in a Codespace
+
+**Getting the files into a new, empty repo.** Do this once.
+
+1. Create a public repo on GitHub with "Add a README file" ticked.
+2. Click **Code → Codespaces → Create codespace on main**.
+3. Drag the downloaded zip (any name, e.g. `election-forest (1).zip`) onto the Explorer panel on the left.
+4. Paste into the terminal:
+   ```bash
+   Z=$(ls -t *.zip | head -1); echo "Using: $Z"
+   find . -mindepth 1 -maxdepth 1 ! -name .git ! -name "$Z" -exec rm -rf {} +
+   rm -rf /tmp/ef && unzip -q "$Z" -d /tmp/ef && rm -rf /tmp/ef/election-forest/.git
+   cp -r /tmp/ef/election-forest/. . && rm -rf /tmp/ef "$Z"
+   bash scripts/codespace_setup.sh
+   ```
+   This installs the packages, checks the folder layout, runs the tests, and commits and pushes.
+5. Start the site: `python3 scripts/live_server.py --every 90`. It opens on port 8000.
+
+There is no need to rebuild the container. Any Codespace you create from now on sets itself up automatically.
+
+**Day to day:** click the badge at the top, or **Code → Codespaces**. **Terminal → Run Task…** lists shortcuts. Keys for use inside a Codespace go under **Settings → Secrets and variables → Codespaces**. Codespaces has open internet, so it is the quickest way to check that every feed connects.
 
 ## Run locally
 
