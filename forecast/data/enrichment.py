@@ -59,7 +59,11 @@ def _read_table(raw: bytes, name: str = "") -> pd.DataFrame:
 def dataverse_file(doi: str, must: tuple[str, ...]) -> tuple[pd.DataFrame, str]:
     meta = _get(f"{DATAVERSE}/datasets/:persistentId/", params={"persistentId": doi}).json()
     files = meta["data"]["latestVersion"]["files"]
-    cands = [f for f in files if all(m in f["dataFile"]["filename"].lower() for m in must)]
+    def ok(fn):
+        fn = fn.lower()
+        return (all(m in fn for m in must) and fn.endswith((".tab", ".csv", ".xlsx"))
+                and not any(x in fn for x in ("codebook", "readme", "notes")))
+    cands = [f for f in files if ok(f["dataFile"]["filename"])]
     if not cands:
         raise RuntimeError(f"no file matching {must} in {doi}: {[f['dataFile']['filename'] for f in files]}")
     f = sorted(cands, key=lambda x: x["dataFile"]["filename"])[-1]  # latest year range sorts last
@@ -69,8 +73,10 @@ def dataverse_file(doi: str, must: tuple[str, ...]) -> tuple[pd.DataFrame, str]:
 
 # =========================================================== 1. certified state presidential results
 def parse_medsl_president(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.rename(columns=str.lower)
-    df = df[df.year >= 2008]
+    df = df.rename(columns=lambda c: str(c).strip().strip('"').lower())
+    if "year" not in df:
+        raise ValueError(f"not a returns file; columns were {list(df.columns)[:12]}")
+    df = df[pd.to_numeric(df.year, errors="coerce") >= 2008]
     if "writein" in df:
         df = df[~df.writein.astype(str).str.upper().eq("TRUE")]
     party = df.get("party_simplified", df.get("party_detailed", "")).astype(str).str.upper()
@@ -109,13 +115,23 @@ def _pct(x):
     if x is None or (isinstance(x, float) and math.isnan(x)):
         return None
     s = str(x).strip().replace("%", "").replace(",", "")
-    m = re.match(r"^([DR])\s*\+\s*([\d.]+)$", s, re.I)
+    if s.upper() in ("EVEN", "TIE", "0"):
+        return 0.0
+    m = re.match(r"^(D|R|H|T|DEM|REP|HARRIS|TRUMP|BIDEN)\s*\+\s*([\d.]+)$", s, re.I)
     if m:
-        return float(m.group(2)) * (1 if m.group(1).upper() == "D" else -1)
+        return float(m.group(2)) * (1 if m.group(1).upper()[0] in "DHB" else -1)
     try:
-        return float(s)
+        return float(s.replace("+", ""))
     except ValueError:
         return None
+
+
+def _is_margin_series(vals) -> bool:
+    txt = [str(v) for v in vals if str(v).strip() not in ("", "nan", "None")]
+    if not txt:
+        return False
+    signed = sum(bool(re.match(r"^\s*([DRHT]|Dem|Rep|Harris|Trump)?\s*[+-]\s*\d", t, re.I)) for t in txt)
+    return signed / len(txt) > 0.6
 
 
 def parse_downballot(df: pd.DataFrame) -> pd.DataFrame:
@@ -129,7 +145,20 @@ def parse_downballot(df: pd.DataFrame) -> pd.DataFrame:
                 df = df.iloc[i + 1:].reset_index(drop=True)
                 df.columns = row
                 break
-    cols = list(df.columns)
+    # two-row header (e.g. "2024" spanning "Harris | Trump | Margin"): merge the sub-header row in
+    cols = [str(c) for c in df.columns]
+    if len(df):
+        sub = [str(v) for v in df.iloc[0].tolist()]
+        if any(re.match(r"^\s*(harris|trump|biden|margin|dem|rep|other)\s*%?\s*$", v, re.I) for v in sub):
+            top, merged = "", []
+            for c, sv in zip(cols, sub):
+                if not re.match(r"^(nan|none|unnamed.*|\d+)?$", c, re.I) or re.match(r"^20\d\d$", c):
+                    top = c
+                merged.append(f"{top} {sv}".strip() if sv not in ("nan", "None") else c)
+            df = df.iloc[1:].reset_index(drop=True)
+            df.columns = merged
+            cols = merged
+    df.columns = cols
     dcol = None
     for c in cols:
         vals = df[c].astype(str).head(60)
@@ -143,6 +172,12 @@ def parse_downballot(df: pd.DataFrame) -> pd.DataFrame:
     trump = next((c for c in cols if "trump" in lc[c] and "harris" not in lc[c]), None)
     margs = [c for c in cols if "margin" in lc[c]]
     marg = next((c for c in margs if "2024" in lc[c] or "pres" in lc[c] or "harris" in lc[c]), margs[0] if margs else None)
+    if not marg and not (harris and trump):
+        # a bare "2024" (or "Pres") column holding D+5 / R+3 / Harris +5 style margins
+        for c in cols:
+            if c != dcol and re.search(r"2024|pres", lc[c]) and _is_margin_series(df[c].head(80)):
+                marg = c
+                break
     rows = []
     for _, r in df.iterrows():
         m = _DIST.match(str(r[dcol]))
@@ -165,7 +200,8 @@ def parse_downballot(df: pd.DataFrame) -> pd.DataFrame:
             if abs(margin) <= 1:
                 margin *= 100
         else:
-            raise ValueError(f"no Harris/Trump or margin columns in {cols[:15]}")
+            preview = df.head(3).to_dict("records")
+            raise ValueError(f"no Harris/Trump or margin columns in {cols[:15]}; first rows: {str(preview)[:300]}")
         rows.append({"race": f"house:{st}-{dist}", "margin2024": round(margin, 2)})
     out = pd.DataFrame(rows).drop_duplicates("race", keep="first")
     if len(out) < 300:
@@ -305,7 +341,18 @@ def fetch_silver_bulletin(url: str | None = None) -> str:
                 raise RuntimeError("no .xlsx link found on the Silver Bulletin page; download 'Rawpolls' to "
                                    "data/manual/silver_bulletin_raw_polls.xlsx or set SB_RAW_POLLS_URL")
             url = links[0]
-        raw, name = _get(url, timeout=300).content, url
+        try:
+            raw, name = _get(url, timeout=300).content, url
+        except requests.HTTPError as e:
+            if e.response is not None and e.response.status_code in (401, 403):
+                raise RuntimeError("Silver Bulletin requires you to be logged in. Log in (free) at natesilver.net, download "
+                                   "'Rawpolls' from /p/pollster-ratings-archive-2025, and drag it into data/manual/ "
+                                   "named silver_bulletin_raw_polls.xlsx") from None
+            raise
+    if raw[:2] != b"PK" and b"<html" in raw[:2000].lower():
+        raise RuntimeError("Silver Bulletin requires you to be logged in to download this file. Log in (free) at "
+                           "natesilver.net, download 'Rawpolls' from /p/pollster-ratings-archive-2025, and drag it into "
+                           "data/manual/ named silver_bulletin_raw_polls.xlsx")
     out = normalize_sb(_read_table(raw, name))
     out.to_csv(REF / "sb_raw_polls.csv", index=False)
     cyc = out.groupby("cycle").race.nunique().to_dict()
@@ -344,6 +391,27 @@ def parse_acs(rows: list[list], year: int, level: str) -> pd.DataFrame:
     return out.dropna(subset=["state"]).round(3)
 
 
+def _census(year: int, params: dict) -> list:
+    url = f"https://api.census.gov/data/{year}/acs/acs5"
+    r = requests.get(url, params=params, headers=UA, timeout=60)
+    try:
+        return r.json()
+    except ValueError:
+        msg = re.sub(r"<[^>]+>", " ", r.text)
+        msg = re.sub(r"\s+", " ", msg).strip()[:140]
+        bad = re.findall(r"unknown variable '([^']+)'", r.text)
+        if bad:   # drop unsupported variables (e.g. an education table missing in that year) and retry once
+            keep = [v for v in params["get"].split(",") if v not in bad]
+            r2 = requests.get(url, params={**params, "get": ",".join(keep)}, headers=UA, timeout=60)
+            rows = r2.json()
+            for v in bad:
+                rows[0].append(v)
+                for row in rows[1:]:
+                    row.append(None)
+            return rows
+        raise ValueError(f"HTTP {r.status_code}: {msg or 'empty reply'}")
+
+
 def fetch_acs(years=None) -> str:
     key = os.getenv("CENSUS_API_KEY", "")
     years = years or list(range(2010, 2026, 2)) + [2023, 2025]
@@ -355,12 +423,14 @@ def fetch_acs(years=None) -> str:
             if key:
                 params["key"] = key
             try:
-                rows = _get(f"https://api.census.gov/data/{y}/acs/acs5", params=params, timeout=60).json()
+                rows = _census(y, params)
                 (st_frames if level == "state" else cd_frames).append(parse_acs(rows, y, level))
             except Exception as e:  # noqa: BLE001
-                notes.append(f"{y}/{level}: {str(e)[:60]}")
+                notes.append(f"{y}/{level}: {str(e)[:160]}")
     if not st_frames:
-        raise RuntimeError("no ACS data fetched: " + "; ".join(notes))
+        raise RuntimeError("no ACS data fetched. First errors: " + " | ".join(notes[:3]) +
+                           ". If it mentions a key, get a free one at api.census.gov/data/key_signup.html and "
+                           "run: export CENSUS_API_KEY=yourkey")
     pd.concat(st_frames).to_csv(REF / "acs_state.csv", index=False)
     if cd_frames:
         pd.concat(cd_frames).to_csv(REF / "acs_cd.csv", index=False)
