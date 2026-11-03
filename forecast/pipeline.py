@@ -57,6 +57,8 @@ def race_universe(markets: dict, polls: pd.DataFrame, results: dict, district_le
     if not polls.empty:
         keys |= {k for k in polls.race.unique() if str(k).startswith("house:")}
     keys |= set(district_lean)
+    if district_lean:  # model every seat; districts missing from the lean file fall back to state lean
+        keys |= {f"house:{s}-" + ("AL" if v[2] == 1 else f"{d:02d}") for s, v in STATES.items() for d in range(1, v[2] + 1)}
     out = []
     for k in sorted(keys):
         parts = k.split(":")
@@ -136,8 +138,10 @@ def run(args) -> dict:
         pr = polls_mod.for_race(polls, r["key"])
         f = race_features(office=r["office"], state=r["state"], cycle=C.CYCLE, polls=pr if len(pr) else None,
                           generic_ballot=generic, macro=macro_now)
-        if r["office"] == "house" and r["key"] in district_lean:
-            f["state_lean"] = district_lean[r["key"]]
+        if r["office"] == "house":
+            r["leanSource"] = "district" if r["key"] in district_lean else "state"
+            if r["key"] in district_lean:
+                f["state_lean"] = district_lean[r["key"]]
         r["features"] = f
         r["polls"] = pr[["pollster", "margin", "source"]].to_dict("records") if len(pr) else []
         mk = markets.get(r["key"])
