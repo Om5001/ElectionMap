@@ -1,0 +1,27 @@
+race,pollster,margin,dem_pct,rep_pct,samplesize,end_date,partisan,source,note
+senate:TX,NYT/Siena,7,50,43,,,,https://www.realclearpolling.com/polls/senate/general/2026/texas/talarico-vs-paxton,Talarico vs Paxton
+senate:TX,AtlasIntel,6.0,52.2,46.2,,,,https://redstate.com/adam-turner/2026/11/03/the-final-senate-polling-as-divided-as-ever-and-2026-senate-race-predictions-n2208939,
+senate:TX,Trafalgar,-0.6,47.5,48.1,,,,https://redstate.com/adam-turner/2026/11/03/the-final-senate-polling-as-divided-as-ever-and-2026-senate-race-predictions-n2208939,
+senate:TX,Emerson College,1.4,49.8,48.4,,,,https://redstate.com/adam-turner/2026/11/03/the-final-senate-polling-as-divided-as-ever-and-2026-senate-race-predictions-n2208939,
+senate:ME,NYT/Siena,6,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:MI,NYT/Siena,11,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:MI,YouGov,4,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:MI,Research Co.,2,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:OH:special,NYT/Siena,6,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,Brown vs Husted
+senate:AK,NYT/Siena,2,48,46,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:KS,NYT/Siena,5,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:KS,CNN/SSRS,4,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:KS,Emerson College,4,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,reported as roughly the same margin as CNN
+senate:KS,Washington Post,10,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,approximate; paper flagged low GOP response
+senate:IA,NYT/Siena,1,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:IA,YouGov,1,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:IA,GrayHouse,-2,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:IA,co/efficient,-2,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:NE,NYT/Siena,-6,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,Osborn (I) minus Ricketts (R)
+senate:NE,Echelon Insights,-1,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,Osborn (I) minus Ricketts (R)
+senate:SC,NYT/Siena,0,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:SC,Fresh Start PAC,5,,,,,1,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,partisan sponsor
+senate:NC,YouGov,11,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:NC,East Carolina University,9,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:GA,Echelon Insights,15,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,
+senate:NH,University of New Hampshire,12,,,,,,https://www.yahoo.com/news/politics/article/the-2026-midterms-are-tomorrow-and-the-final-polls-are-here-which-party-has-a-better-chance-of-winning-150348522.html,

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Election Forest</title>
+  <meta name="description" content="A correlation-weighted bootstrap random forest for the 2026 Senate, House and Governor races, blended live with prediction markets and vote counts.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Election Forest</h1>
+    <p class="sub">2026 Senate · House · Governor — random-forest forecast, prediction markets and live counts</p>
+  </div>
+  <div class="meta">
+    <span id="mode" class="mode"></span>
+    <span id="updated" class="updated">Loading…</span>
+  </div>
+</header>
+<div id="banner" class="banner" hidden></div>
+
+<section class="strip">
+  <div class="kpis" id="kpis"></div>
+  <div class="macro" id="macro"></div>
+</section>
+
+<nav class="mtabs" id="mtabs">
+  <button data-p="model">Model</button><button data-p="map" class="on">Map</button><button data-p="tracker">Key races</button>
+</nav>
+
+<main class="grid">
+  <!-- ======================= MODEL PANEL ======================= -->
+  <section class="panel" id="p-model">
+    <div class="ph"><h2>The forest at work</h2><span class="hint" id="seedInfo"></span></div>
+    <div class="race-head" id="raceHead"></div>
+
+    <div class="card">
+      <h3>400 trees vote <span class="hint">each dot is one tree's predicted margin</span></h3>
+      <div id="treeVotes" class="chart"></div>
+      <div class="legend-sm"><span><i class="ln mean"></i>Forest mean</span><span><i class="ln final"></i>Final forecast</span><span><i class="ln zero"></i>Tie</span></div>
+    </div>
+
+    <div class="card">
+      <h3>How the forecast is built</h3>
+      <div id="waterfall" class="chart"></div>
+    </div>
+
+    <div class="card">
+      <h3>Bootstrapped factor weights <span class="hint">probability a tree draws the factor (mean, 5–95%)</span></h3>
+      <div id="weights"></div>
+    </div>
+
+    <div class="card">
+      <h3>A sample of the trees <span class="hint">factors each tree drew → its vote for this race</span></h3>
+      <div id="treeGrid" class="tree-grid"></div>
+    </div>
+
+    <div class="card">
+      <h3>Backtest, 2010–2022 <span class="hint">leave-one-cycle-out</span></h3>
+      <div id="backtest"></div>
+      <div id="calib" class="chart"></div>
+    </div>
+
+    <div class="card" id="liveCard">
+      <h3>Live layer <span class="hint">re-weights itself as races are decided</span></h3>
+      <div id="liveLayer"></div>
+    </div>
+
+    <details class="card method" open>
+      <summary><h3>Methodology</h3></summary>
+      <div id="method"></div>
+    </details>
+  </section>
+
+  <!-- ======================= MAP PANEL ======================= -->
+  <section class="panel" id="p-map">
+    <div class="ph">
+      <div class="tabs" role="tablist">
+        <button data-o="senate" aria-selected="true">Senate</button>
+        <button data-o="house" aria-selected="false">House</button>
+        <button data-o="governor" aria-selected="false">Governor</button>
+      </div>
+    </div>
+    <div id="chamber" class="chamber"></div>
+    <div id="map" class="map"></div>
+    <div id="mapLegend" class="legend"></div>
+    <div id="waffle" class="waffle"></div>
+    <div id="stateDetail" class="state-detail"></div>
+  </section>
+
+  <!-- ======================= TRACKER PANEL ======================= -->
+  <section class="panel" id="p-tracker">
+    <div class="ph"><h2>Key races</h2><span class="hint">closest × most-watched</span></div>
+    <ol id="tracker" class="tracker"></ol>
+    <div class="card">
+      <h3>Data feeds</h3>
+      <ul id="feeds" class="feeds"></ul>
+    </div>
+  </section>
+</main>
+
+<div id="tip" class="tip" hidden></div>
+<footer class="foot">Not financial advice. Open-source model; see the repository README for data sources and licenses (538 polling archive CC BY 4.0).</footer>
+
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
