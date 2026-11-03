@@ -137,7 +137,7 @@ def run(args) -> dict:
     for r in races:
         pr = polls_mod.for_race(polls, r["key"])
         f = race_features(office=r["office"], state=r["state"], cycle=C.CYCLE, polls=pr if len(pr) else None,
-                          generic_ballot=generic, macro=macro_now)
+                          generic_ballot=generic, macro=macro_now, district=r["district"])
         if r["office"] == "house":
             r["leanSource"] = "district" if r["key"] in district_lean else "state"
             if r["key"] in district_lean:

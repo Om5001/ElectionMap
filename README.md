@@ -128,6 +128,30 @@ There is no need to rebuild the container. Any Codespace you create from now on 
 
 **Day to day:** click the badge at the top, or **Code → Codespaces**. **Terminal → Run Task…** lists shortcuts. Keys for use inside a Codespace go under **Settings → Secrets and variables → Codespaces**. Codespaces has open internet, so it is the quickest way to check that every feed connects.
 
+## Enrichment data (2024 results, 2026 district lines, demographics)
+
+```bash
+python scripts/fetch_enrichment.py --backtest
+```
+
+This downloads four sources, then re-runs the backtest and prints the scores before and after:
+
+| Source | What it adds | File written |
+|---|---|---|
+| MIT Election Lab, certified state presidential returns | Fixes the incomplete 2012/2016 county sums behind state lean | `data/reference/pres_by_state.csv` (original kept as `pres_by_state_countysum.csv`) |
+| The Downballot, 2024 presidential results on the **2026** district lines | Correct lean for the 10 states that redrew (TX, MO, NC, OH, CA, UT, AL, FL, LA, TN) | `data/reference/house_district_lean.csv` |
+| Silver Bulletin raw polls (Feb 2025) | Adds the **2024** cycle to training, an 8th election | `data/reference/sb_raw_polls.csv` |
+| Census ACS 5-year | College %, Hispanic %, Black %, median age and income, for states and districts | `data/reference/acs_state.csv`, `acs_cd.csv` |
+
+Every source is optional, and the model runs without any of them. If an automatic download fails (sites change), save the file by hand:
+
+- **Downballot:** open their Google Sheet, choose File → Download → CSV, and save it as `data/manual/downballot_2026_districts.csv`. Or set `DOWNBALLOT_CSV_URL`.
+- **Silver Bulletin:** download "Rawpolls" from natesilver.net/p/pollster-ratings-archive-2025 and save it as `data/manual/silver_bulletin_raw_polls.xlsx`. Or set `SB_RAW_POLLS_URL`.
+- **MIT:** save the president file from Harvard Dataverse (doi:10.7910/DVN/42MVDX) as `data/manual/medsl_president.csv`.
+- **Census:** works without a key. A free `CENSUS_API_KEY` lifts the rate limits.
+
+Commit the new `data/reference/*.csv` files so the GitHub Action uses them too. If you publish, credit MIT Election Data + Science Lab, The Downballot, Silver Bulletin and the U.S. Census Bureau.
+
 ## Run locally
 
 ```bash
